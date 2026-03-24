@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Suite | Malacañang 2026</title>
+    <style>
+        :root {
+            --ios-bg: linear-gradient(135deg, #1a1c2c 0%, #4a192c 50%, #121212 100%);
+            --ios-card: rgba(28, 28, 30, 0.7);
+            --ios-accent: #0A84FF;
+            --ios-text: #ffffff;
+            --ios-secondary-text: #8E8E93;
+            --glass-blur: blur(25px);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #32D74B;
+            --warning: #FFD60A;
+            --danger: #FF453A;
+            --indigo: #5E5CE6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background: var(--ios-bg);
+            background-attachment: fixed;
+            color: var(--ios-text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* --- Screens --- */
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+
+        .screen.active { display: flex; }
+
+        /* --- Start Screen --- */
+        #start-screen { justify-content: center; text-align: center; }
+        .seal { width: 180px; height: 180px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); }
+        .title { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
+        .subtitle { color: var(--ios-secondary-text); margin-bottom: 40px; font-weight: 300; }
+
+        .btn-main {
+            padding: 16px 40px;
+            border-radius: 14px;
+            border: none;
+            background: var(--ios-accent);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(10, 132, 255, 0.3);
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(10, 132, 255, 0.4); }
+
+        /* --- News Ticker --- */
+        .news-ticker {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0,0,0,0.4);
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            overflow: hidden;
+        }
+        .ticker-wrap { display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* --- Main Layout --- */
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            height: calc(100% - 140px);
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .glass-card {
+            background: var(--ios-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* --- Stats Sidebar --- */
+        .stat-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+        }
+        .stat-label { font-size: 0.75rem; color: var(--ios-secondary-text); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.2rem; font-weight: 700; }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; }
+
+        /* --- Content Panels --- */
+        .content-panel { display: none; height: 100%; flex-direction: column; gap: 20px; }
+        .content-panel.active { display: flex; }
+
+        /* --- Choice Grid --- */
+        .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .btn-choice {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border);
+            padding: 18px;
+            border-radius: 18px;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .btn-choice:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
+
+        /* --- Bottom Nav --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 30px;
+            background: var(--ios-card);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            padding: 10px;
+            border-radius: 25px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            border-radius: 18px;
+            border: none;
+            background: transparent;
+            color: var(--ios-secondary-text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+
+        /* --- Graph Styling --- */
+        .graph-container {
+            width: 100%;
+            height: 300px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            position: relative;
+            overflow-x: auto;
+            padding: 20px;
+        }
+        .graph-svg { width: 1000px; height: 100%; stroke-width: 3; fill: none; }
+
+        /* --- Sliders --- */
+        input[type=range] { width: 100%; accent-color: var(--ios-accent); margin: 10px 0; }
+        
+        /* --- Themes --- */
+        .theme-selector { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
+        .theme-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
+
+        /* --- News Feed --- */
+        .news-item { padding: 15px; border-bottom: 1px solid var(--glass-border); animation: fadeInScale 0.3s ease; }
+        .news-date { font-size: 0.7rem; color: var(--indigo); font-weight: bold; }
+        .news-title { font-size: 1rem; margin-top: 5px; }
+
+        .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+        .legend-item { display: flex; align-items: center; font-size: 0.75rem; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="screen active">
+        <img src="seal.svg" alt="PH Seal" class="seal">
+        <h1 class="title">Executive Suite</h1>
+        <p class="subtitle">Malacañang Palace • Term 2026</p>
+        
+        <div style="margin-bottom: 30px;">
+            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--ios-secondary-text);">SELECT DIFFICULTY</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="nav-item active" onclick="setDiff(0)">Trapo (Easy)</button>
+                <button class="nav-item" onclick="setDiff(1)">Statesman (Hard)</button>
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="startGame()">Assume Command</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="news-ticker">
+            <div class="ticker-wrap" id="ticker-text">Welcome Mr. President. The nation awaits your first directive...</div>
+        </div>
+
+        <div class="container">
+            <div class="glass-card">
+                <h3 style="margin-bottom: 20px;">National Status <span id="game-status" class="status-pill" style="background: var(--success);">OPERATIONAL</span></h3>
+                <div id="stats-list">
+                    </div>
+                <div class="stat-item" style="background: var(--indigo);">
+                    <div class="stat-label" style="color: white;">Current Turn</div>
+                    <div class="stat-value" id="turn-display">Month 1, 2026</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div id="panel-executive" class="content-panel active">
+                    <div id="scenario-box">
+                        <h2 id="scenario-title">Welcome, Mr. President</h2>
+                        <p id="scenario-desc" style="margin: 15px 0; line-height: 1.6; color: var(--ios-secondary-text);">The cabinet is assembled. Your choices will define the future of the Philippines. Choose your first priority.</p>
+                        <div class="choice-grid" id="choices">
+                            </div>
+                    </div>
+                </div>
+
+                <div id="panel-treasury" class="content-panel">
+                    <h2>Treasury & Budget</h2>
+                    <p style="color: var(--ios-secondary-text); margin-bottom: 20px;">Adjust monthly allocations (in Billion PHP)</p>
+                    <div id="budget-sliders">
+                        </div>
+                </div>
+
+                <div id="panel-laws" class="content-panel">
+                    <h2>Legislative Review</h2>
+                    <div id="bill-container">
+                        </div>
+                </div>
+
+                <div id="panel-policy" class="content-panel">
+                    <h2>Long-term Policies</h2>
+                    <div class="choice-grid" id="policy-list">
+                        </div>
+                </div>
+
+                <div id="panel-data" class="content-panel">
+                    <h2>National Metrics History</h2>
+                    <div class="graph-container">
+                        <svg class="graph-svg" id="main-graph" viewBox="0 0 1000 300">
+                            </svg>
+                    </div>
+                    <div class="legend" id="graph-legend"></div>
+                </div>
+
+                <div id="panel-intel" class="content-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>Intelligence Briefing</h2>
+                        <button class="nav-item" onclick="sortNews()" style="font-size: 0.7rem;">SORT BY IMPACT</button>
+                    </div>
+                    <div id="news-feed" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showPanel('executive', this)">Executive</button>
+            <button class="nav-item" onclick="showPanel('treasury', this)">Treasury</button>
+            <button class="nav-item" onclick="showPanel('laws', this)">Laws</button>
+            <button class="nav-item" onclick="showPanel('policy', this)">Policy</button>
+            <button class="nav-item" onclick="showPanel('data', this)">Data</button>
+            <button class="nav-item" onclick="showPanel('intel', this)">Intel</button>
+        </nav>
+    </div>
+
+    <div class="theme-selector">
+        <div class="theme-dot" style="background: #1a1c2c;" onclick="setTheme(0)"></div>
+        <div class="theme-dot" style="background: #000000;" onclick="setTheme(1)"></div>
+        <div class="theme-dot" style="background: #1e3a3a;" onclick="setTheme(2)"></div>
+        <div class="theme-dot" style="background: #3a1e1e;" onclick="setTheme(3)"></div>
+        <div class="theme-dot" style="background: #2e1e3a;" onclick="setTheme(4)"></div>
+    </div>
+
+    <script>
+        // --- Game State ---
+        let game = {
+            turn: 1,
+            difficulty: 0, // 0: Easy, 1: Hard
+            stats: {
+                approval: 65,
+                gdp: 450, // Billion USD
+                debt: 60,  // % of GDP
+                stability: 70,
+                crime: 40,
+                education: 50,
+                health: 50,
+                energy: 60,
+                exports: 40,
+                unemployment: 5.5
+            },
+            history: {}, // For Graph
+            budget: {
+                DepEd: 20, DOH: 15, DOST: 5, DA: 10, DOTr: 12, DND: 15, DSWD: 10, DENR: 5
+            },
+            news: [],
+            activeBills: []
+        };
+
+        const metrics = [
+            { id: 'approval', name: 'Approval Rating', color: '#FF3B30' },
+            { id: 'gdp', name: 'GDP Growth', color: '#32D74B' },
+            { id: 'debt', name: 'Debt to GDP', color: '#FF9F0A' },
+            { id: 'stability', name: 'Stability', color: '#5E5CE6' },
+            { id: 'crime', name: 'Crime Rate', color: '#AF52DE' },
+            { id: 'education', name: 'Edu Index', color: '#64D2FF' },
+            { id: 'health', name: 'Health Index', color: '#BF5AF2' },
+            { id: 'energy', name: 'Energy Security', color: '#FFD60A' }
+        ];
+
+        // --- Scenarios ---
+        const scenarios = [
+            {
+                title: "West Philippine Sea Incursion",
+                desc: "Satellite imagery confirms new structures on a disputed reef. Domestic pressure is mounting for a firm response.",
+                options: [
+                    { text: "File a Diplomatic Protest", effect: { approval: -5, stability: 5, debt: 0 } },
+                    { text: "Deploy Navy Patrols", effect: { approval: 10, stability: -5, debt: 2 } },
+                    { text: "Seek US/Allied Mediation", effect: { approval: 2, stability: 10, gdp: -1 } },
+                    { text: "Ignore & Focus on Trade", effect: { approval: -15, gdp: 5, stability: -10 } }
+                ]
+            },
+            {
+                title: "Jeepney Modernization Strike",
+                desc: "Transport groups are paralyzing Metro Manila, protesting the phase-out of traditional jeepneys.",
+                options: [
+                    { text: "Full Subsidy for Drivers", effect: { debt: 5, stability: 10, approval: 5 } },
+                    { text: "Enforce Ban with Police", effect: { stability: -15, approval: -10, crime: 5 } },
+                    { text: "Delay Phase-out 1 Year", effect: { stability: 5, energy: -5, approval: 8 } },
+                    { text: "Public-Private Partnership", effect: { gdp: 2, debt: 1, stability: 2 } }
+                ]
+            },
+            {
+                title: "Agricultural Crisis: Onion Prices",
+                desc: "Smuggling and cartel hoarding have caused onion prices to skyrocket. Consumers are furious.",
+                options: [
+                    { text: "Authorize Emergency Imports", effect: { approval: 10, gdp: -2, exports: -5 } },
+                    { text: "Raid Cold Storage Warehouses", effect: { approval: 15, crime: -5, stability: 2 } },
+                    { text: "Subsidize Local Fertilizers", effect: { debt: 3, approval: 5, education: 0 } },
+                    { text: "Fix Prices via Law", effect: { gdp: -5, stability: -5, approval: -2 } }
+                ]
+            }
+        ];
+
+        // --- Core Functions ---
+        function startGame() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            initHistory();
+            updateUI();
+            nextScenario();
+        }
+
+        function initHistory() {
+            metrics.forEach(m => game.history[m.id] = [game.stats[m.id]]);
+        }
+
+        function showPanel(id, btn) {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`panel-${id}`).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function setDiff(val) {
+            game.difficulty = val;
+            document.querySelectorAll('#start-screen .nav-item').forEach((b, i) => {
+                b.classList.toggle('active', i === val);
+            });
+        }
+
+        function setTheme(idx) {
+            const themes = [
+                'linear-gradient(135deg, #1a1c2c 0%, #4a192c 50%, #121212 100%)',
+                'linear-gradient(180deg, #000 0%, #111 100%)',
+                'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
+                'linear-gradient(135deg, #3a1c1c, #1c1c1c)',
+                'linear-gradient(135deg, #1c1c3a, #000000)'
+            ];
+            document.body.style.background = themes[idx];
+        }
+
+        function updateUI() {
+            // Update Stats Sidebar
+            const statsList = document.getElementById('stats-list');
+            statsList.innerHTML = '';
+            metrics.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'stat-item';
+                item.innerHTML = `
+                    <div class="stat-label">${m.name}</div>
+                    <div class="stat-value" style="color: ${m.color}">${game.stats[m.id].toFixed(1)}${m.id === 'approval' ? '%' : ''}</div>
+                `;
+                statsList.appendChild(item);
+            });
+
+            // Update Budget Sliders
+            const budgetBox = document.getElementById('budget-sliders');
+            budgetBox.innerHTML = '';
+            Object.keys(game.budget).forEach(dep => {
+                const row = document.createElement('div');
+                row.style.marginBottom = '15px';
+                row.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem">
+                        <span>${dep}</span>
+                        <span>₱${game.budget[dep]}B</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="${game.budget[dep]}" onchange="updateBudget('${dep}', this.value)">
+                `;
+                budgetBox.appendChild(row);
+            });
+
+            // Update Turn
+            document.getElementById('turn-display').innerText = `Month ${game.turn}, 2026`;
+            
+            // Check for Loss
+            checkGameOver();
+            drawGraph();
+        }
+
+        function updateBudget(dep, val) {
+            game.budget[dep] = parseInt(val);
+            addNews(`Budget for ${dep} adjusted to ₱${val}B.`);
+        }
+
+        function handleChoice(effect, msg) {
+            // Apply Effects
+            Object.keys(effect).forEach(key => {
+                game.stats[key] += effect[key];
+                // Constraints
+                if (game.stats[key] < 0) game.stats[key] = 0;
+                if (game.stats[key] > 100 && key !== 'gdp') game.stats[key] = 100;
+            });
+
+            // Economics: Debt impacts GDP growth
+            if (game.stats.debt > 80) game.stats.gdp *= 0.98;
+            if (game.stats.stability < 30) game.stats.approval *= 0.9;
+
+            addNews(`DECISION IMPACT: ${msg}`);
+            game.turn++;
+            
+            // Record History
+            metrics.forEach(m => game.history[m.id].push(game.stats[m.id]));
+            
+            updateUI();
+            nextScenario();
+        }
+
+        function nextScenario() {
+            const sc = scenarios[Math.floor(Math.random() * scenarios.length)];
+            document.getElementById('scenario-title').innerText = sc.title;
+            document.getElementById('scenario-desc').innerText = sc.desc;
+            
+            const choiceBox = document.getElementById('choices');
+            choiceBox.innerHTML = '';
+            sc.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-choice';
+                btn.innerText = opt.text;
+                btn.onclick = () => handleChoice(opt.effect, opt.text);
+                choiceBox.appendChild(btn);
+            });
+        }
+
+        function addNews(text) {
+            const newsFeed = document.getElementById('news-feed');
+            const item = document.createElement('div');
+            item.className = 'news-item';
+            item.innerHTML = `
+                <div class="news-date">MONTH ${game.turn}</div>
+                <div class="news-title">${text}</div>
+            `;
+            newsFeed.prepend(item);
+            document.getElementById('ticker-text').innerText = text;
+        }
+
+        function drawGraph() {
+            const svg = document.getElementById('main-graph');
+            const legend = document.getElementById('graph-legend');
+            svg.innerHTML = '';
+            legend.innerHTML = '';
+
+            const width = 1000;
+            const height = 300;
+            const padding = 20;
+
+            metrics.forEach((m, idx) => {
+                const data = game.history[m.id];
+                let points = "";
+                const xStep = width / 20;
+                
+                data.forEach((val, i) => {
+                    const x = i * xStep;
+                    // Scale 0-100 to height
+                    const y = height - (val / 100 * (height - padding * 2)) - padding;
+                    points += `${x},${y} `;
+                });
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                path.setAttribute("points", points);
+                path.setAttribute("stroke", m.color);
+                path.setAttribute("stroke-width", "3");
+                path.setAttribute("fill", "none");
+                svg.appendChild(path);
+
+                // Legend
+                const leg = document.createElement('div');
+                leg.className = 'legend-item';
+                leg.innerHTML = `<div class="dot" style="background:${m.color}"></div> ${m.name}`;
+                legend.appendChild(leg);
+            });
+        }
+
+        function checkGameOver() {
+            let reason = "";
+            if (game.stats.approval < 10) reason = "The People have revolted. Ousted in EDSA IV.";
+            if (game.stats.stability < 10) reason = "Military Coup d'etat. The Palace has fallen.";
+            if (game.stats.debt > 150) reason = "National Bankruptcy. The IMF has taken control.";
+            
+            if (reason) {
+                alert("GAME OVER: " + reason);
+                location.reload();
+            }
+
+            const statusPill = document.getElementById('game-status');
+            if (game.stats.stability < 40) {
+                statusPill.innerText = "VOLATILE";
+                statusPill.style.background = "var(--danger)";
+            } else if (game.stats.stability < 60) {
+                statusPill.innerText = "CRISIS";
+                statusPill.style.background = "var(--warning)";
+            } else {
+                statusPill.innerText = "OPERATIONAL";
+                statusPill.style.background = "var(--success)";
+            }
+        }
+
+        // Initialize Policy Tab
+        const policies = ["Maharlika Investment Fund", "Universal Health Care Expansion", "ROTC Mandatory", "Charter Change (Cha-Cha)"];
+        const policyContainer = document.getElementById('policy-list');
+        policies.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerText = `Implement ${p}`;
+            btn.onclick = () => handleChoice({ stability: -5, gdp: 10, debt: 10 }, `Implemented ${p}`);
+            policyContainer.appendChild(btn);
+        });
+
+        // Initialize Laws Tab
+        const bills = [
+            "Anti-Fake News Law", "Magna Carta for Seafarers", "Wealth Tax on Billionaires", "Divorce Bill"
+        ];
+        const billContainer = document.getElementById('bill-container');
+        bills.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'stat-item';
+            div.innerHTML = `
+                <div class="stat-label">Pending Bill</div>
+                <div class="stat-value">${b}</div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <button class="nav-item active" style="background:var(--success)" onclick="this.parentElement.parentElement.remove()">APPROVE</button>
+                    <button class="nav-item active" style="background:var(--danger)" onclick="this.parentElement.parentElement.remove()">VETO</button>
+                </div>
+            `;
+            billContainer.appendChild(div);
+        });
+
+    </script>
+</body>
+</html>
