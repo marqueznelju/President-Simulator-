@@ -168,6 +168,34 @@
 </div>
 
 <script>
+
+// Difficulty multipliers
+const difficultyLevels = {
+    easy:   { a: 0.8, g: 0.8 },
+    medium: { a: 1.0, g: 1.0 },
+    hard:   { a: 1.3, g: 1.3 }
+};
+
+// Set current difficulty (change 'medium' to 'easy' or 'hard' as needed)
+let currentDifficulty = 'hard';
+
+// Apply difficulty to option effects dynamically
+function applyDifficulty(option) {
+    const mod = difficultyLevels[currentDifficulty];
+    return {
+        n: option.n,
+        a: Math.round(option.a * mod.a),
+        g: Math.round(option.g * mod.g)
+    };
+}
+
+// Example usage when displaying options for a scenario
+function getOptionsWithDifficulty(scenario) {
+    return scenario.o.map(applyDifficulty);
+}
+
+
+
 let turn = 1;
 let stats = { a: 45, g: 3.5 };
 let logs = { labels: ['Y1'], a: [45], g: [3.5] };
