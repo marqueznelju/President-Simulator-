@@ -171,9 +171,7 @@
 
 // Difficulty multipliers
 const difficultyLevels = {
-    easy:   { a: 0.8, g: 0.8 },
-    medium: { a: 1.0, g: 1.0 },
-    hard:   { a: 1.3, g: 1.3 }
+    hard:   { a: 10.0, g: 10.0 }
 };
 
 // Set current difficulty (change 'medium' to 'easy' or 'hard' as needed)
@@ -197,8 +195,29 @@ function getOptionsWithDifficulty(scenario) {
 
 
 let turn = 1;
-let stats = { a: 45, g: 3.5 };
-let logs = { labels: ['Y1'], a: [45], g: [3.5] };
+let stats = { a: 50, g: 0.0 };
+let logs = { labels: ['Y1'], a: [50], g: [0.0] };
+
+
+function applyScenarioEffect(option) {
+    // Positive changes are weaker (50%), negative changes are stronger (150%)
+    stats.a += option.a > 0 ? Math.floor(option.a * 0.001) : Math.floor(option.a * 20.5);
+    stats.g += option.g > 0 ? Math.floor(option.g * 10.9) : Math.floor(option.g * 10.5);
+    
+    // Random crime increase based on decision difficulty
+    stats.c += Math.floor(Math.random() * 10 + 2); 
+
+    // Clamp stats to valid ranges
+    stats.a = Math.min(Math.max(stats.a, 0), 100);
+    stats.g = Math.min(Math.max(stats.g, -10), 15);
+    stats.c = Math.min(Math.max(stats.c, 0), 100);
+
+    updateStatsDisplay();
+    updateChart();
+    checkCrimeOusting();
+}    
+
+
 
 // --- SHUFFLE OPTIONS FOR GAME BALANCE ---
 function shuffleOptions(options) {
