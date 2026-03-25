@@ -169,9 +169,17 @@
 
 <script>
 let turn = 1;
-let stats = { a: 60, g: 5.0 };
-let logs = { labels: ['Y1'], a: [60], g: [5.0] };
+let stats = { a: 45, g: 3.5 };
+let logs = { labels: ['Y1'], a: [45], g: [3.5] };
 
+// --- SHUFFLE OPTIONS FOR GAME BALANCE ---
+function shuffleOptions(options) {
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+    return options;
+}
 // --- MODULAR DATA POOLS ---
 // --- MODULAR DATA POOLS ---
 const sectors = [
@@ -209,12 +217,12 @@ const scenarios = [
     { type:"event", t:"🛤️ PNR railway delays cause major Luzon travel disruptions.", o:[{n:"Upgrade Tracks", a:8,g:-1},{n:"Hire More Staff", a:5,g:0},{n:"Ignore Problem", a:-10,g:-1},{n:"Privatize Service", a:3,g:2}]},
     { type:"event", t:"🏭 Baguio factories emit hazardous smoke. Residents protest.", o:[{n:"Enforce Emission Laws", a:10,g:-1},{n:"Provide Health Aid", a:5,g:0},{n:"Ignore Complaints", a:-8,g:0},{n:"Relocate Factories", a:8,g:-2}]},
     { type:"event", t:"💧 Water shortages hit Cebu due to pipeline issues.", o:[{n:"Repair Pipelines", a:10,g:0},{n:"Water Rationing", a:-2,g:1},{n:"Import Water", a:5,g:0},{n:"Ignore Issue", a:-10,g:-1}]},
-    { type:"event", t:"🌪️ Mindanao hit by unexpected tropical storm.", o:[{n:"Deploy Relief Teams", a:12,g:-1},{n:"Fund Evacuation Centers", a:8,g:0},{n:"Ignore Warning", a:-12,g:0},{n:"Request International Aid", a:5,g:1}]},
+    { type:"event", t:"🌪️ Mindanao hit by unexpected tropical storm.", o:[{n:"Deploy Relief Teams", a:9,g:-2},{n:"Fund Evacuation Centers", a:6,g:-1},{n:"Ignore Warning", a:-15,g:-1},{n:"Request International Aid", a:3,g:0}]},
     { type:"event", t:"🚧 Metro Manila traffic worsens due to construction delays.", o:[{n:"Fund Road Projects", a:5,g:2},{n:"Implement Traffic Management", a:3,g:1},{n:"Ignore Issue", a:-5,g:-1},{n:"Introduce Road Taxes", a:-2,g:2}]},
     { type:"event", t:"📉 Inflation rises after rice import delays.", o:[{n:"Subsidize Rice", a:5,g:-1},{n:"Import from ASEAN", a:8,g:1},{n:"Do Nothing", a:-10,g:0},{n:"Raise Interest Rates", a:-3,g:2}]},
     { type:"event", t:"🛢️ Malampaya gas supply disruption hits Luzon power plants.", o:[{n:"Increase LNG Imports", a:5,g:2},{n:"Deploy Renewable Backup", a:3,g:3},{n:"Load Shedding", a:-2,g:1},{n:"Ignore Crisis", a:-5,g:0}]},
-    { type:"event", t:"🏥 Hospitals face shortage of COVID-19 vaccines.", o:[{n:"Import Vaccines", a:12,g:0},{n:"Accelerate Local Production", a:10,g:0},{n:"Ignore Shortage", a:-10,g:0},{n:"Partner With Private Clinics", a:5,g:1}]},
-    { type:"event", t:"🌳 Deforestation in Palawan sparks environmental protests.", o:[{n:"Pass Anti-Logging Law", a:10,g:2},{n:"Fund Reforestation", a:8,g:1},{n:"Ignore Protest", a:-8,g:-1},{n:"Consult Indigenous Groups", a:5,g:0}]},
+    { type:"event", t:"🏥 Hospitals face shortage of COVID-19 vaccines.", o:[{n:"Import Vaccines", a:9,g:-1},{n:"Accelerate Local Production", a:7,g:-1},{n:"Ignore Shortage", a:-12,g:-1},{n:"Partner With Private Clinics", a:3,g:0}]},
+    { type:"event", t:"🌳 Deforestation in Palawan sparks environmental protests.", o:[{n:"Pass Anti-Logging Law", a:8,g:1},{n:"Fund Reforestation", a:6,g:0},{n:"Ignore Protest", a:-10,g:-2},{n:"Consult Indigenous Groups", a:3,g:-1}]},
     { type:"event", t:"🛩️ NAIA flight delays cause international travel complaints.", o:[{n:"Upgrade Airport Systems", a:8,g:-1},{n:"Increase Staff", a:5,g:0},{n:"Ignore Issue", a:-5,g:0},{n:"Privatize Operations", a:3,g:2}]},
     { type:"event", t:"🏦 Bangko Sentral reports rising non-performing loans.", o:[{n:"Tighten Lending Rules", a:5,g:2},{n:"Subsidize Banks", a:3,g:1},{n:"Do Nothing", a:-5,g:-1},{n:"Lower Interest Rates", a:-2,g:3}]},
     { type:"event", t:"🚨 Drug-related incidents surge in NCR.", o:[{n:"Increase Police Ops", a:10,g:-1},{n:"Community Rehab Programs", a:5,g:0},{n:"Impose Curfew", a:-2,g:1},{n:"Ignore Trend", a:-8,g:0}]},
@@ -222,14 +230,14 @@ const scenarios = [
     { type:"event", t:"🛑 Quezon City flood after heavy monsoon rains.", o:[{n:"Deploy Rescue Teams", a:10,g:0},{n:"Build Drainage", a:5,g:-1},{n:"Ignore Flood", a:-10,g:0},{n:"Evacuate Residents", a:8,g:-1}]},
     { type:"event", t:"🎓 College tuition hikes spark student protests.", o:[{n:"Freeze Tuition Fees", a:8,g:-1},{n:"Provide Scholarships", a:5,g:0},{n:"Ignore Complaints", a:-5,g:0},{n:"Negotiate With Universities", a:5,g:-1}]},
     { type:"event", t:"🛢️ Fuel shortage due to refinery maintenance.", o:[{n:"Import Fuel", a:5,g:-2},{n:"Subsidize Public Transport", a:3,g:1},{n:"Implement Rationing", a:-2,g:1},{n:"Ignore Crisis", a:-5,g:0}]},
-    { type:"event", t:"🏞️ Mindoro landslide buries residential area.", o:[{n:"Deploy Rescue Teams", a:12,g:-1},{n:"Fund Relocation", a:8,g:0},{n:"Ignore Situation", a:-10,g:0},{n:"Request International Aid", a:5,g:1}]},
+    { type:"event", t:"🏞️ Mindoro landslide buries residential area.", o:[{n:"Deploy Rescue Teams", a:9,g:-2},{n:"Fund Relocation", a:6,g:-1},{n:"Ignore Situation", a:-12,g:-1},{n:"Request International Aid", a:3,g:0}]},
     { type:"event", t:"📡 TV and internet blackouts disrupt communication.", o:[{n:"Repair Infrastructure", a:10,g:1},{n:"Fund Private Networks", a:5,g:0},{n:"Ignore Blackout", a:-8,g:0},{n:"Deploy Satellite Backup", a:3,g:2}]},
     { type:"event", t:"🏭 Iloilo chemical spill threatens local communities.", o:[{n:"Clean Up Immediately", a:10,g:0},{n:"Fine Company", a:5,g:0},{n:"Ignore Spill", a:-8,g:-1},{n:"Evacuate Residents", a:8,g:-1}]},
     { type:"event", t:"🏝️ Tourism slump after COVID-19 restrictions lifted slowly.", o:[{n:"Promote Domestic Travel", a:5,g:2},{n:"Offer Hotel Subsidies", a:3,g:1},{n:"Ignore Sector", a:-5,g:-1},{n:"Partner With Airlines", a:3,g:2}]},
     { type:"event", t:"🌾 Typhoon devastates Northern Luzon rice fields. Farmers demand relief.", o:[{n:"Deploy Emergency Funds", a:10,g:-2},{n:"Ignore Warnings", a:-15,g:-1},{n:"Coordinate with NGOs", a:5,g:0},{n:"Blame Previous Admin", a:3,g:-1}]},
     { type:"event", t:"🚌 MRT breakdown causes chaos in Manila. Commuters protest.", o:[{n:"Increase Repairs Budget", a:5,g:-2},{n:"Privatize Operations", a:-2,g:4},{n:"Call For Investigation", a:8,g:-1},{n:"Ignore Complaints", a:-10,g:0}]},
     { type:"event", t:"⚓ Foreign vessels enter West Philippine Sea. Tensions rise.", o:[{n:"Send Navy", a:5,g:-5},{n:"Diplomatic Talks", a:10,g:-2},{n:"Ignore Issue", a:-15,g:0},{n:"Call ASEAN Summit", a:8,g:0}]},
-    { type:"event", t:"🏥 Hospitals overwhelmed by dengue outbreak.", o:[{n:"Deploy Vaccines", a:15,g:-1},{n:"Enforce Lockdown", a:-5,g:-2},{n:"Call WHO Support", a:10,g:2},{n:"Ignore Alert", a:-20,g:0}]},
+    { type:"event", t:"🏥 Hospitals overwhelmed by dengue outbreak.", o:[{n:"Deploy Vaccines", a:10,g:-2},{n:"Enforce Lockdown", a:-8,g:-3},{n:"Call WHO Support", a:7,g:1},{n:"Ignore Alert", a:-25,g:-1}]},
     { type:"event", t:"📚 Teachers strike over low salaries.", o:[{n:"Increase Salaries", a:10,g:-2},{n:"Force Return to Work", a:-5,g:0},{n:"Negotiate Contract", a:8,g:-1},{n:"Ignore Protest", a:-10,g:0}]},
     { type:"event", t:"💰 Peso depreciates after global oil crisis.", o:[{n:"Subsidize Fuel", a:5,g:-2},{n:"Increase Interest Rates", a:-2,g:3},{n:"Invest in Renewables", a:5,g:2},{n:"Do Nothing", a:-10,g:-1}]},
     { type:"event", t:"🏗️ Metro Manila bridge collapses during rush hour.", o:[{n:"Emergency Rescue & Repair", a:10,g:-1},{n:"Inspect All Bridges", a:5,g:-2},{n:"Ignore Incident", a:-15,g:0},{n:"Blame Contractor", a:2,g:1}]},
@@ -239,9 +247,9 @@ const scenarios = [
     { type:"event", t:"🏥 WHO issues warning on rising flu cases.", o:[{n:"Fund Vaccination Drives", a:10,g:1},{n:"Deploy Emergency Units", a:8,g:0},{n:"Local Govt Partnerships", a:5,g:0},{n:"Ignore Warning", a:-10,g:0}]},
     { type:"event", t:"📚 Low literacy rankings released globally.", o:[{n:"Curriculum Reform", a:10,g:0},{n:"Invest in Libraries", a:3,g:1},{n:"Hire More Teachers", a:5,g:-1},{n:"Ignore Ranking", a:-10,g:0}]},
     { type:"event", t:"⚖️ Supreme Court considers legalizing divorce.", o:[{n:"Support Law", a:10,g:1},{n:"Oppose Law", a:-5,g:0},{n:"Delay Decision", a:0,g:0},{n:"Call for Referendum", a:5,g:-1}]},
-    { type:"event", t:"🏳️‍🌈 Congress debates same-sex marriage legalization.", o:[{n:"Support Legislation", a:15,g:0},{n:"Oppose Legislation", a:-10,g:0},{n:"Delay Vote", a:-2,g:0},{n:"Consult Religious Groups", a:3,g:-1}]},
+    { type:"event", t:"🏳️‍🌈 Congress debates same-sex marriage legalization.", o:[{n:"Support Legislation", a:10,g:0},{n:"Oppose Legislation", a:-12,g:-1},{n:"Delay Vote", a:-3,g:-1},{n:"Consult Religious Groups", a:2,g:-1}]},
     { type:"event", t:"🩺 Public debate over abortion rights intensifies.", o:[{n:"Legalize with Restrictions", a:10,g:-1},{n:"Maintain Ban", a:-5,g:0},{n:"Initiate Public Consultation", a:5,g:0},{n:"Ignore Pressure", a:-10,g:0}]},
-    { type:"event", t:"🌎 Climate change protests erupt nationwide.", o:[{n:"Pass Green Law", a:12,g:2},{n:"Subsidize Fossil Fuels", a:-5,g:3},{n:"Hold Public Forum", a:5,g:0},{n:"Ignore Demonstrations", a:-10,g:-1}]},
+    { type:"event", t:"🌎 Climate change protests erupt nationwide.", o:[{n:"Pass Green Law", a:9,g:1},{n:"Subsidize Fossil Fuels", a:-8,g:2},{n:"Hold Public Forum", a:3,g:-1},{n:"Ignore Demonstrations", a:-12,g:-2}]},
     { type:"event", t:"💼 Unemployment rises due to factory closures.", o:[{n:"Job Creation Program", a:10,g:-1},{n:"Offer Tax Incentives", a:5,g:2},{n:"Ignore Crisis", a:-10,g:0},{n:"Outsource Jobs Abroad", a:-5,g:1}]},
     { type:"event", t:"🏢 Foreign investors threaten to pull out of PH.", o:[{n:"Negotiate Incentives", a:5,g:3},{n:"Ignore Warning", a:-10,g:-2},{n:"Privatize Sectors", a:3,g:2},{n:"Strengthen Regulations", a:-2,g:1}]},
     { type:"event", t:"🚨 Rising crime rates alarm citizens.", o:[{n:"Increase Police Funding", a:10,g:-1},{n:"Impose Curfew", a:-2,g:1},{n:"Community Watch Programs", a:5,g:0},{n:"Ignore Trend", a:-8,g:0}]},
@@ -250,9 +258,9 @@ const scenarios = [
     { type:"event", t:"🏖️ Tourism declines after natural disaster.", o:[{n:"Promote Domestic Tourism", a:5,g:2},{n:"Subsidize Hotels", a:2,g:1},{n:"Ignore Losses", a:-5,g:-1},{n:"Partner With Airlines", a:3,g:2}]},
     { type:"event", t:"🛢️ Global oil price spikes.", o:[{n:"Subsidize Fuel", a:5,g:-2},{n:"Invest in Renewables", a:5,g:2},{n:"Increase Interest Rates", a:-2,g:3},{n:"Do Nothing", a:-10,g:-1}]},
     { type:"event", t:"🏢 Manila water supply affected by El Niño drought.", o:[{n:"Import Water", a:5,g:1},{n:"Launch Rain Harvest Program", a:8,g:0},{n:"Ignore Crisis", a:-10,g:-1},{n:"Blame Previous Admin", a:-3,g:-1}]},
-    { type:"event", t:"🌋 Taal Volcano eruption disrupts nearby provinces.", o:[{n:"Evacuate Residents", a:12,g:-1},{n:"Provide Relief Packages", a:8,g:0},{n:"Ignore Situation", a:-10,g:0},{n:"Deploy Military Assistance", a:5,g:1}]},
+    { type:"event", t:"🌋 Taal Volcano eruption disrupts nearby provinces.", o:[{n:"Evacuate Residents", a:9,g:-2},{n:"Provide Relief Packages", a:6,g:-1},{n:"Ignore Situation", a:-13,g:-1},{n:"Deploy Military Assistance", a:3,g:0}]},
     { type:"event", t:"🛢️ Oil spill in Palawan affects marine biodiversity.", o:[{n:"Fund Cleanup", a:8,g:1},{n:"Fine Company", a:5,g:0},{n:"Ignore Problem", a:-8,g:-1},{n:"Promote Tourism Anyway", a:-2,g:2}]},
-    { type:"event", t:" Corruption scandal in Davao City local gov.", o:[{n:"Investigate Officials", a:10,g:-2},{n:"Cover Up", a:-5,g:-1},{n:"Public Apology", a:5,g:0},{n:"Resign Officials", a:8,g:-1}]},
+    { type:"event", t:"💵 Corruption scandal in Davao City local gov.", o:[{n:"Investigate Officials", a:10,g:-2},{n:"Cover Up", a:-5,g:-1},{n:"Public Apology", a:5,g:0},{n:"Resign Officials", a:8,g:-1}]},
     { type:"event", t:"📦 Rice supply shortage due to typhoon damage.", o:[{n:"Subsidize Farmers", a:8,g:-2},{n:"Import Rice", a:2,g:3},{n:"Encourage Alternatives", a:5,g:0},{n:"Do Nothing", a:-10,g:-1}]},
     { type:"event", t:"🏖️ Boracay closed temporarily for rehabilitation.", o:[{n:"Fund Cleanup", a:5,g:2},{n:"Limit Tourists", a:-2,g:0},{n:"Ignore Issues", a:-5,g:-1},{n:"Promote Domestic Tourism", a:3,g:2}]},
     { type:"event", t:"⚠️ State of national energy emergency declared amid looming fuel shortages and price spikes.", o:[{n:"Mobilize National Energy Task Force", a:8,g:-1},{n:"Subsidize Fuel Prices", a:5,g:-2},{n:"Increase Fuel Tax Relief", a:3,g:-1},{n:"Delay Emergency Measures", a:-10,g:0}]},
@@ -260,8 +268,8 @@ const scenarios = [
     { type:"event", t:"🚗 Nationwide transport strike announced by jeepney and bus groups over rising fuel costs.", o:[{n:"Negotiate With Drivers", a:8,g:-2},{n:"Ban Strike", a:-5,g:1},{n:"Subsidize Public Transport", a:5,g:-1},{n:"Ignore Protest", a:-10,g:0}]},
     { type:"event", t:"🔄 Return flights of overseas Filipinos from the Middle East due to worsening conditions.", o:[{n:"Fund Repatriation Aid", a:5,g:-1},{n:"Encourage Return to Work", a:3,g:0},{n:"Ignore Issue", a:-10,g:0},{n:"Negotiate Abroad Support", a:8,g:1}]},
     { type:"event", t:"🌋 Mayon Volcano shows increased unrest, threatening nearby communities.", o:[{n:"Order Evacuations", a:10,g:-1},{n:"Increase Monitoring", a:5,g:0},{n:"Provide Relief Aid", a:8,g:0},{n:"Ignore Warnings", a:-12,g:0}]},
-    { type:"event", t:"📉 Business group flags Philippines as regional economic underperformer due to weak infrastructure spending.", o:[{n:"Boost Infrastructure Budget", a:10,g:2},{n:"Launch PPP Projects", a:8,g:1},{n:"Cut Spending Elsewhere", a:-2,g:1},{n:"Ignore Ranking", a:-8,g:0}]},
-    { type:"event", t:"🛢️ Fuel supply seen adequate only until mid‑May without action.", o:[{n:"Activate Strategic Reserve", a:8,g:-1},{n:"Ration Fuel Use", a:-3,g:1},{n:"Import More Crude", a:10,g:2},{n:"Ignore Warning", a:-10,g:0}]},
+    { type:"event", t:"📉 Business group flags Philippines as regional economic underperformer due to weak infrastructure spending.", o:[{n:"Boost Infrastructure Budget", a:7,g:1},{n:"Launch PPP Projects", a:5,g:0},{n:"Cut Spending Elsewhere", a:-3,g:1},{n:"Ignore Ranking", a:-10,g:-1}]},
+    { type:"event", t:"🛢️ Fuel supply seen adequate only until mid‑May without action.", o:[{n:"Activate Strategic Reserve", a:6,g:-2},{n:"Ration Fuel Use", a:-5,g:0},{n:"Import More Crude", a:7,g:1},{n:"Ignore Warning", a:-12,g:-1}]},
     { type:"event", t:"⚖️ Impeachment proceedings advance against Vice President over alleged misuse of funds.", o:[{n:"Support Investigation", a:5,g:-1},{n:"Defend VP", a:-8,g:0},{n:"Call Media Transparency", a:3,g:0},{n:"Adjourn Hearing", a:-3,g:0}]},
     { type:"event", t:"📊 National survey shows inflation and corruption remain top urgent concerns for Filipinos.", o:[{n:"Launch Anti‑Graft Task Force", a:10,g:-1},{n:"Freeze Prices", a:5,g:-2},{n:"Tax Relief for Workers", a:3,g:-1},{n:"Do Nothing", a:-10,g:0}]},
     { type:"event", t:"🛠️ Philippine manufacturing posts fastest growth in years.", o:[{n:"Promote Export Incentives", a:8,g:3},{n:"Invest in MSMEs", a:5,g:2},{n:"Increase Interest Rates", a:-2,g:2},{n:"Ignore Growth", a:-5,g:0}]},
@@ -301,8 +309,8 @@ const scenarios = [
 
 // --- THE ENGINE ---
 function engine() {
-    if (stats.g <= -5.0) return end("<b>Economic Collapse.</b> Hyperinflation has turned the Peso into paper. You've been removed in a peaceful but firm military transition.");
-    if (stats.a <= -10.0) return end("<b>House Arrest.</b> Your approval plummeted. The Ombudsman has filed plunder charges and you are confined to your provincial estate.");
+    if (stats.g <= -3.0) return end("<b>Economic Collapse.</b> Severe recession and capital flight. International creditors demand intervention. You've been removed in a military transition.");
+    if (stats.a <= -5.0) return end("<b>Ousted.</b> Your approval ratings have collapsed. Opposition forces and military factions demand your resignation. You are forced from office.");
 
     document.getElementById('header-title').innerText = `Year ${turn}`;
     document.getElementById('stat-a').innerText = stats.a + "%";
@@ -328,7 +336,8 @@ function engine() {
 
     const btnBox = document.getElementById('btn-stack');
     btnBox.innerHTML = '';
-    scene.o.forEach(opt => {
+    const choices = shuffleOptions([...scene.o]);
+    choices.forEach(opt => {
         const b = document.createElement('button');
         b.className = `opt-btn ${opt.class || ''}`;
         b.innerHTML = `<span>${opt.n}</span> <span style="font-size:20px">›</span>`;
