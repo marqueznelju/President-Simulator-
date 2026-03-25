@@ -168,136 +168,140 @@
 </div>
 
 <script>
-    let turn = 1;
-    let stats = { a: 60, g: 5.0 };
-    let logs = { labels: ['Y1'], a: [60], g: [5.0] };
+let turn = 1;
+let stats = { a: 60, g: 5.0 };
+let logs = { labels: ['Y1'], a: [60], g: [5.0] };
 
-    // --- MODULAR DATA POOLS ---
-    const sectors = [
-        { name: "Agriculture", icon: "🌾", aMod: 1.2, gMod: 0.8, up: "Harvest Bounty", down: "Crop Shortage" },
-        { name: "Public Transport", icon: "🚌", aMod: 1.5, gMod: 0.5, up: "Fleet Modernization", down: "Transport Strike" },
-        { name: "West PH Sea", icon: "⚓", aMod: 2.0, gMod: 1.5, up: "Resource Discovery", down: "Naval Standoff" },
-        { name: "Energy Grid", icon: "⚡", aMod: 0.8, gMod: 1.8, up: "New Power Plant", down: "Massive Blackout" },
-        { name: "Cybersecurity", icon: "💻", aMod: 1.0, gMod: 1.2, up: "Tech Investment", down: "Bank Data Breach" },
-        { name: "Health System", icon: "🏥", aMod: 1.8, gMod: 0.6, up: "Medical Breakthrough", down: "Viral Outbreak" }
-    ];
+// --- MODULAR DATA POOLS ---
+const sectors = [
+    { name: "Agriculture", icon: "🌾", aMod: 1.2, gMod: 0.8, up: "Harvest Bounty", down: "Crop Shortage" },
+    { name: "Public Transport", icon: "🚌", aMod: 1.5, gMod: 0.5, up: "Fleet Modernization", down: "Transport Strike" },
+    { name: "West PH Sea", icon: "⚓", aMod: 2.0, gMod: 1.5, up: "Resource Discovery", down: "Naval Standoff" },
+    { name: "Energy Grid", icon: "⚡", aMod: 0.8, gMod: 1.8, up: "New Power Plant", down: "Massive Blackout" },
+    { name: "Cybersecurity", icon: "💻", aMod: 1.0, gMod: 1.2, up: "Tech Investment", down: "Bank Data Breach" },
+    { name: "Health System", icon: "🏥", aMod: 1.8, gMod: 0.6, up: "Medical Breakthrough", down: "Viral Outbreak" },
+    { name: "Education", icon: "📚", aMod: 1.5, gMod: 0.7, up: "Curriculum Reform", down: "Teacher Strike" },
+    { name: "Tourism", icon: "🏝️", aMod: 1.3, gMod: 1.0, up: "Festival Promotion", down: "Travel Ban" },
+    { name: "Finance", icon: "💰", aMod: 1.0, gMod: 1.5, up: "Tax Reform", down: "Bank Collapse" },
+    { name: "Infrastructure", icon: "🏗️", aMod: 0.9, gMod: 1.8, up: "New Highway", down: "Bridge Collapse" }
+];
 
-    const actors = ["A powerful religious bloc", "The Senate Minority", "A viral TikTok movement", "Foreign Investors", "The Labor Union coalition", "A group of influential Mayors"];
+const actors = [
+    "The Senate", 
+    "Supreme Court justices", 
+    "Local Mayors", 
+    "Foreign Investors", 
+    "Labor Unions", 
+    "Tech Entrepreneurs",
+    "Religious Leaders",
+    "Barangay Councils",
+    "Environmental Activists",
+    "Tourism Board"
+];
 
-    const eventTypes = [
-        { desc: "is caught in a massive scandal involving", a: -15, g: -2 },
-        { desc: "is demanding immediate subsidies for", a: 10, g: -5 },
-        { desc: "is protesting against the mismanagement of", a: -12, g: -1 },
-        { desc: "is praising your recent handling of", a: 15, g: 2 }
-    ];
+const scenarios = [
+    { type:"event", t:"🌾 Typhoon hits Mindoro, devastating crops. Farmers demand immediate aid.", o:[{n:"Deploy Emergency Funds", a:10,g:-2},{n:"Ignore Warnings", a:-15,g:-1},{n:"Coordinate with NGOs", a:5,g:0},{n:"Blame Previous Admin", a:3,g:-1}]},
+    { type:"event", t:"🚌 MRT experiences massive breakdowns during rush hour, commuters protest nationwide.", o:[{n:"Increase Repairs Budget", a:5,g:-2},{n:"Privatize Operations", a:-2,g:4},{n:"Call For Investigation", a:8,g:-1},{n:"Ignore Complaints", a:-10,g:0}]},
+    { type:"event", t:"⚓ China sends patrols near West Philippine Sea, escalating tensions.", o:[{n:"Send Navy", a:5,g:-5},{n:"Diplomatic Talks", a:10,g:-2},{n:"Ignore Issue", a:-15,g:0},{n:"Call ASEAN Summit", a:8,g:0}]},
+    { type:"event", t:"⚡ Luzon faces blackouts due to old transmission lines.", o:[{n:"Build New Power Plant", a:10,g:3},{n:"Import Energy", a:2,g:5},{n:"Reduce Load", a:-5,g:0},{n:"Privatize Grid", a:-3,g:4}]},
+    { type:"event", t:"💻 National bank data breached by hackers, citizens panic.", o:[{n:"Launch Cybersecurity Taskforce", a:12,g:0},{n:"Pay Ransom", a:-5,g:-3},{n:"Ignore Breach", a:-15,g:-1},{n:"Blame Private Contractors", a:-3,g:1}]},
+    { type:"event", t:"🏥 New viral outbreak in Metro Manila hospitals, public worried.", o:[{n:"Enforce Lockdown", a:-5,g:-2},{n:"Deploy Vaccines", a:15,g:-1},{n:"Ignore Alert", a:-20,g:0},{n:"Call WHO Support", a:10,g:2}]},
+    { type:"event", t:"📚 Teachers strike over low salaries, disrupting classes.", o:[{n:"Increase Salaries", a:10,g:-2},{n:"Force Return to Work", a:-5,g:0},{n:"Negotiate Contract", a:8,g:-1},{n:"Ignore Protest", a:-10,g:0}]},
+    { type:"event", t:"🏝️ Boracay festival attracts tourists but causes environmental concerns.", o:[{n:"Promote Festival", a:5,g:3},{n:"Limit Visitors", a:-2,g:0},{n:"Close Island", a:-10,g:-1},{n:"Call Environmental Audit", a:3,g:1}]},
+    { type:"event", t:"💰 Philippine peso faces rapid depreciation, investors alarmed.", o:[{n:"Adjust Interest Rates", a:-2,g:5},{n:"Negotiate IMF Aid", a:5,g:3},{n:"Ignore Currency", a:-10,g:-2},{n:"Nationalize Banks", a:-5,g:2}]},
+    { type:"event", t:"🏗️ Collapse of a bridge in Cebu during rush hour.", o:[{n:"Emergency Rescue & Repair", a:10,g:-1},{n:"Inspect All Bridges", a:5,g:-2},{n:"Ignore Incident", a:-15,g:0},{n:"Blame Contractor", a:2,g:1}]},
+    { type:"event", t:"🌾 Global rice shortage spikes prices locally.", o:[{n:"Subsidize Farmers", a:8,g:-2},{n:"Import Rice", a:2,g:3},{n:"Do Nothing", a:-10,g:-1},{n:"Encourage Alternative Crops", a:5,g:0}]},
+    { type:"event", t:"💻 Tech giant plans to relocate HQ from Manila, risking jobs.", o:[{n:"Offer Tax Incentives", a:10,g:2},{n:"Protest Relocation", a:-2,g:-1},{n:"Ignore Move", a:-10,g:0},{n:"Invest in Local Startups", a:5,g:1}]},
+    { type:"event", t:"⚡ Offshore wind farm inaugurated, boosting renewable energy.", o:[{n:"Promote More Projects", a:8,g:3},{n:"Subsidize Coal", a:-5,g:2},{n:"Ignore Investment", a:-3,g:0},{n:"Partner With Private Sector", a:5,g:2}]},
+    { type:"event", t:"🏥 WHO warns of rising dengue cases nationwide.", o:[{n:"Fund Healthcare Campaigns", a:10,g:1},{n:"Ignore Warning", a:-10,g:0},{n:"Local Govt Partnerships", a:5,g:0},{n:"Deploy Emergency Units", a:8,g:0}]},
+    { type:"event", t:"📚 Philippines ranked low in global literacy index.", o:[{n:"Curriculum Reform", a:10,g:0},{n:"Hire More Teachers", a:5,g:-1},{n:"Ignore Ranking", a:-10,g:0},{n:"Invest in Libraries", a:3,g:1}]},
+    { type:"event", t:"🏝️ Tourism drops due to global travel restrictions.", o:[{n:"Promote Domestic Tourism", a:5,g:2},{n:"Subsidize Hotels", a:2,g:1},{n:"Ignore Losses", a:-5,g:-1},{n:"Partner With Airlines", a:3,g:2}]},
+    { type:"event", t:"💰 Stock market crash due to global tech selloff.", o:[{n:"Bail Out Companies", a:2,g:5},{n:"Do Nothing", a:-10,g:-3},{n:"Invest in Recovery Fund", a:5,g:3},{n:"Raise Taxes", a:-5,g:2}]},
+    { type:"event", t:"🏗️ New subway project causes budget overruns.", o:[{n:"Approve Additional Funds", a:-2,g:5},{n:"Scale Down Project", a:5,g:-1},{n:"Cancel Project", a:-5,g:-2},{n:"Audit Contractors", a:2,g:1}]},
+    { type:"event", t:"⚓ Tensions rise as foreign vessels enter disputed waters.", o:[{n:"Naval Patrols", a:5,g:-3},{n:"Diplomatic Talks", a:8,g:-2},{n:"Ignore Incursion", a:-10,g:0},{n:"Call ASEAN Allies", a:5,g:1}]},
+    { type:"event", t:"🌾 Flooding in Luzon destroys farmlands.", o:[{n:"Deploy Relief", a:8,g:-1},{n:"Insurance Payouts", a:5,g:-1},{n:"Ignore Disaster", a:-15,g:0},{n:"Call International Aid", a:3,g:2}]},
+    { type:"event", t:"💻 Cyberattack cripples government websites.", o:[{n:"Strengthen Firewalls", a:10,g:1},{n:"Pay Ransom", a:-5,g:-2},{n:"Ignore Breach", a:-10,g:-1},{n:"Call International Experts", a:5,g:2}]},
+    { type:"event", t:"⚡ Energy demand peaks during heatwave, causing outages.", o:[{n:"Deploy Backup Generators", a:5,g:2},{n:"Request Power Imports", a:3,g:3},{n:"Ignore Crisis", a:-5,g:0},{n:"Implement Load Shedding", a:-2,g:1}]},
+    { type:"event", t:"🏥 Hospitals overwhelmed due to influenza spike.", o:[{n:"Open Field Clinics", a:8,g:0},{n:"Fund Vaccination Drives", a:10,g:-1},{n:"Ignore Situation", a:-10,g:0},{n:"Request WHO Assistance", a:5,g:2}]},
+    { type:"event", t:"📚 Students protest rising tuition fees.", o:[{n:"Cap Tuition", a:10,g:-2},{n:"Increase Scholarships", a:5,g:-1},{n:"Ignore Protest", a:-8,g:0},{n:"Negotiate With Universities", a:5,g:0}]},
+    { type:"event", t:"🏝️ UNESCO threatens to delist heritage site due to mismanagement.", o:[{n:"Restore Site", a:10,g:2},{n:"Lobby UNESCO", a:5,g:1},{n:"Ignore Warning", a:-8,g:0},{n:"Privatize Management", a:-5,g:1}]},
+    { type:"event", t:"💰 Inflation surges due to global oil crisis.", o:[{n:"Subsidize Fuel", a:5,g:-2},{n:"Increase Interest Rates", a:-2,g:3},{n:"Do Nothing", a:-10,g:-1},{n:"Invest in Renewables", a:5,g:2}]},
+    { type:"event", t:"🏗️ Metro Manila traffic worsens due to delayed road projects.", o:[{n:"Fund Completion", a:5,g:2},{n:"Introduce Road Taxes", a:-2,g:3},{n:"Ignore", a:-5,g:-1},{n:"Implement Carpool Policies", a:3,g:1}]}
+];
 
-    // --- THE ENGINE ---
-    function engine() {
-        if (stats.g <= -5.0) return end("<b>Economic Collapse.</b> Hyperinflation has turned the Peso into paper. You've been removed in a peaceful but firm military transition.");
-        if (stats.a <= -10.0) return end("<b>House Arrest.</b> Your approval plummeted. The Ombudsman has filed plunder charges and you are confined to your provincial estate.");
+// --- THE ENGINE ---
+function engine() {
+    if (stats.g <= -5.0) return end("<b>Economic Collapse.</b> Hyperinflation has turned the Peso into paper. You've been removed in a peaceful but firm military transition.");
+    if (stats.a <= -10.0) return end("<b>House Arrest.</b> Your approval plummeted. The Ombudsman has filed plunder charges and you are confined to your provincial estate.");
 
-        document.getElementById('header-title').innerText = `Year ${turn}`;
-        document.getElementById('stat-a').innerText = stats.a + "%";
-        document.getElementById('stat-g').innerText = stats.g.toFixed(1) + "%";
+    document.getElementById('header-title').innerText = `Year ${turn}`;
+    document.getElementById('stat-a').innerText = stats.a + "%";
+    document.getElementById('stat-g').innerText = stats.g.toFixed(1) + "%";
 
-        const dot = document.getElementById('status-indicator');
-        if (stats.a < 5 || stats.g < 0) {
-            dot.style.background = 'var(--ios-red)';
-            dot.style.boxShadow = '0 0 10px var(--ios-red)';
-        } else if (stats.a < 25 || stats.g < 2) {
-            dot.style.background = 'var(--ios-yellow)';
-            dot.style.boxShadow = '0 0 10px var(--ios-yellow)';
-        } else {
-            dot.style.background = 'var(--ios-green)';
-            dot.style.boxShadow = '0 0 10px var(--ios-green)';
-        }
-
-        // Logic to pick a random modular scene
-        const scene = generateModularScene();
-        
-        const badge = document.getElementById('badge');
-        badge.innerText = scene.type;
-        badge.className = `type-badge badge-${scene.type}`;
-
-        document.getElementById('story-text').innerText = scene.t;
-        const btnBox = document.getElementById('btn-stack');
-        btnBox.innerHTML = '';
-
-        scene.o.forEach(opt => {
-            const b = document.createElement('button');
-            b.className = `opt-btn ${opt.class || ''}`;
-            b.innerHTML = `<span>${opt.n}</span> <span style="font-size:20px">›</span>`;
-            b.onclick = () => {
-                stats.a += opt.a;
-                stats.g += opt.g;
-                turn++;
-                logs.labels.push('Y'+turn);
-                logs.a.push(stats.a);
-                logs.g.push(stats.g);
-                chart.update();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                engine();
-            };
-            btnBox.appendChild(b);
-        });
+    const dot = document.getElementById('status-indicator');
+    if (stats.a < 5 || stats.g < 0) {
+        dot.style.background = 'var(--ios-red)';
+        dot.style.boxShadow = '0 0 10px var(--ios-red)';
+    } else if (stats.a < 25 || stats.g < 2) {
+        dot.style.background = 'var(--ios-yellow)';
+        dot.style.boxShadow = '0 0 10px var(--ios-yellow)';
+    } else {
+        dot.style.background = 'var(--ios-green)';
+        dot.style.boxShadow = '0 0 10px var(--ios-green)';
     }
 
-    function generateModularScene() {
-        const s = sectors[Math.floor(Math.random() * sectors.length)];
-        const act = actors[Math.floor(Math.random() * actors.length)];
-        const isBill = Math.random() > 0.5;
+    const scene = scenarios[Math.floor(Math.random() * scenarios.length)];
+    const badge = document.getElementById('badge');
+    badge.innerText = scene.type;
+    badge.className = `type-badge badge-${scene.type}`;
+    document.getElementById('story-text').innerText = scene.t;
 
-        if (isBill) {
-            return {
-                type: "bill",
-                t: `${s.icon} BILL: '${act}' has authored a new law regarding ${s.name} reform. It promises a '${s.up}' but risks a '${s.down}'.`,
-                o: [
-                    { n: "SIGN INTO LAW", a: Math.floor(10 * s.aMod), g: Math.floor(5 * s.gMod), class: 'sign' },
-                    { n: "VETO BILL", a: Math.floor(-8 * s.aMod), g: Math.floor(2 * s.gMod), class: 'veto' }
-                ]
-            };
-        } else {
-            const ev = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-            return {
-                type: "event",
-                t: `${s.icon} URGENT: ${act} ${ev.desc} the ${s.name} sector. This has triggered a national discussion on your leadership.`,
-                o: [
-                    { n: "Take Aggressive Action", a: 15, g: -4 },
-                    { n: "Bribe the Critics", a: -5, g: -2 },
-                    { n: "Ignore and Move On", a: -10, g: 0 },
-                    { n: "Blame the Opposition", a: 5, g: 0 },
-                    { n: "Call for a Senate Probe", a: 8, g: -1 },
-                    { n: "Resign immediately", a: -100, g: -100 }
-                ]
-            };
-        }
-    }
-
-    // Chart initialization remains the same...
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: logs.labels,
-            datasets: [
-                { label: 'Trust', data: logs.a, borderColor: '#0a84ff', tension: 0.4, pointRadius: 0, borderWidth: 3 },
-                { label: 'GDP', data: logs.g, borderColor: '#ff453a', tension: 0.4, pointRadius: 0, borderWidth: 3 }
-            ]
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { legend: { display: false } }, 
-            scales: { x: { display: false }, y: { display: false } } 
-        }
+    const btnBox = document.getElementById('btn-stack');
+    btnBox.innerHTML = '';
+    scene.o.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = `opt-btn ${opt.class || ''}`;
+        b.innerHTML = `<span>${opt.n}</span> <span style="font-size:20px">›</span>`;
+        b.onclick = () => {
+            stats.a += opt.a;
+            stats.g += opt.g;
+            turn++;
+            logs.labels.push('Y'+turn);
+            logs.a.push(stats.a);
+            logs.g.push(stats.g);
+            chart.update();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            engine();
+        };
+        btnBox.appendChild(b);
     });
+}
 
-    function end(msg) {
-        document.getElementById('death-screen').style.display = 'flex';
-        document.getElementById('death-msg').innerHTML = msg;
+// Chart initialization
+const ctx = document.getElementById('lineChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: logs.labels,
+        datasets: [
+            { label: 'Trust', data: logs.a, borderColor: '#0a84ff', tension: 0.4, pointRadius: 0, borderWidth: 3 },
+            { label: 'GDP', data: logs.g, borderColor: '#ff453a', tension: 0.4, pointRadius: 0, borderWidth: 3 }
+        ]
+    },
+    options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        plugins: { legend: { display: false } }, 
+        scales: { x: { display: false }, y: { display: false } } 
     }
+});
 
-    engine();
+function end(msg) {
+    document.getElementById('death-screen').style.display = 'flex';
+    document.getElementById('death-msg').innerHTML = msg;
+}
+
+engine();
 </script>
 </body>
 </html>
