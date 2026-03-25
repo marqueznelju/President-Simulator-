@@ -172,66 +172,34 @@
     let stats = { a: 60, g: 5.0 };
     let logs = { labels: ['Y1'], a: [60], g: [5.0] };
 
-    const baseScenarios = [
-        {
-            type: "bill",
-            t: "HOUSE BILL NO. 402: The 'Digital Wealth Tax'. This bill proposes a 5% tax on all cryptocurrency gains and offshore digital assets to fund the national debt.",
-            o: [
-                { n: "SIGN BILL INTO LAW", a: 15, g: -3, class: 'sign' },
-                { n: "VETO BILL", a: -10, g: 5, class: 'veto' }
-            ]
-        },
-        {
-            type: "event",
-            t: "The Manila Bay reclamation projects are causing flash floods in nearby cities. Environmentalists are chain-linking themselves to heavy machinery.",
-            o: [
-                { n: "Halt all projects immediately", a: 15, g: -5 },
-                { n: "Order a 60-day study", a: 5, g: -1 },
-                { n: "Force projects to continue", a: -12, g: 8 },
-                { n: "Bribe the group leaders", a: -5, g: -2 },
-                { n: "Blame the local mayor", a: 2, g: 0 },
-                { n: "Relocate the protesters", a: -3, g: -1 }
-            ]
-        },
-        {
-            type: "bill",
-            t: "SENATE BILL NO. 88: 'The Sovereign Defense Act'. Increases VAT by 2% to fund the immediate purchase of a submarine fleet for the West Philippine Sea.",
-            o: [
-                { n: "SIGN BILL INTO LAW", a: 5, g: -4, class: 'sign' },
-                { n: "VETO BILL", a: -15, g: 2, class: 'veto' }
-            ]
-        }
+    // --- MODULAR DATA POOLS ---
+    const sectors = [
+        { name: "Agriculture", icon: "🌾", aMod: 1.2, gMod: 0.8, up: "Harvest Bounty", down: "Crop Shortage" },
+        { name: "Public Transport", icon: "🚌", aMod: 1.5, gMod: 0.5, up: "Fleet Modernization", down: "Transport Strike" },
+        { name: "West PH Sea", icon: "⚓", aMod: 2.0, gMod: 1.5, up: "Resource Discovery", down: "Naval Standoff" },
+        { name: "Energy Grid", icon: "⚡", aMod: 0.8, gMod: 1.8, up: "New Power Plant", down: "Massive Blackout" },
+        { name: "Cybersecurity", icon: "💻", aMod: 1.0, gMod: 1.2, up: "Tech Investment", down: "Bank Data Breach" },
+        { name: "Health System", icon: "🏥", aMod: 1.8, gMod: 0.6, up: "Medical Breakthrough", down: "Viral Outbreak" }
     ];
 
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: logs.labels,
-            datasets: [
-                { label: 'Trust', data: logs.a, borderColor: '#0a84ff', tension: 0.4, pointRadius: 0, borderWidth: 3 },
-                { label: 'GDP', data: logs.g, borderColor: '#ff453a', tension: 0.4, pointRadius: 0, borderWidth: 3 }
-            ]
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { legend: { display: false } }, 
-            scales: { x: { display: false }, y: { display: false } } 
-        }
-    });
+    const actors = ["A powerful religious bloc", "The Senate Minority", "A viral TikTok movement", "Foreign Investors", "The Labor Union coalition", "A group of influential Mayors"];
 
+    const eventTypes = [
+        { desc: "is caught in a massive scandal involving", a: -15, g: -2 },
+        { desc: "is demanding immediate subsidies for", a: 10, g: -5 },
+        { desc: "is protesting against the mismanagement of", a: -12, g: -1 },
+        { desc: "is praising your recent handling of", a: 15, g: 2 }
+    ];
+
+    // --- THE ENGINE ---
     function engine() {
-        // Game Over Logic
-        if (stats.g <= -5.0) end("<b>Economic Collapse.</b> Hyperinflation has turned the Peso into paper. You've been removed in a peaceful but firm military transition.");
-        if (stats.a <= -10.0) end("<b>House Arrest.</b> Your approval plummeted. The Ombudsman has filed plunder charges and you are confined to your provincial estate.");
+        if (stats.g <= -5.0) return end("<b>Economic Collapse.</b> Hyperinflation has turned the Peso into paper. You've been removed in a peaceful but firm military transition.");
+        if (stats.a <= -10.0) return end("<b>House Arrest.</b> Your approval plummeted. The Ombudsman has filed plunder charges and you are confined to your provincial estate.");
 
-        // UI Updates
         document.getElementById('header-title').innerText = `Year ${turn}`;
         document.getElementById('stat-a').innerText = stats.a + "%";
         document.getElementById('stat-g').innerText = stats.g.toFixed(1) + "%";
 
-        // Status Dot Logic
         const dot = document.getElementById('status-indicator');
         if (stats.a < 5 || stats.g < 0) {
             dot.style.background = 'var(--ios-red)';
@@ -244,7 +212,8 @@
             dot.style.boxShadow = '0 0 10px var(--ios-green)';
         }
 
-        const scene = turn <= baseScenarios.length ? baseScenarios[turn-1] : generateRandomScene();
+        // Logic to pick a random modular scene
+        const scene = generateModularScene();
         
         const badge = document.getElementById('badge');
         badge.innerText = scene.type;
@@ -273,32 +242,55 @@
         });
     }
 
-    function generateRandomScene() {
+    function generateModularScene() {
+        const s = sectors[Math.floor(Math.random() * sectors.length)];
+        const act = actors[Math.floor(Math.random() * actors.length)];
         const isBill = Math.random() > 0.5;
+
         if (isBill) {
             return {
                 type: "bill",
-                t: "A controversial new Bill has arrived on your desk regarding Labor Unions and worker strikes during national holidays.",
+                t: `${s.icon} BILL: '${act}' has authored a new law regarding ${s.name} reform. It promises a '${s.up}' but risks a '${s.down}'.`,
                 o: [
-                    { n: "SIGN BILL INTO LAW", a: -10, g: 5, class: 'sign' },
-                    { n: "VETO BILL", a: 15, g: -2, class: 'veto' }
+                    { n: "SIGN INTO LAW", a: Math.floor(10 * s.aMod), g: Math.floor(5 * s.gMod), class: 'sign' },
+                    { n: "VETO BILL", a: Math.floor(-8 * s.aMod), g: Math.floor(2 * s.gMod), class: 'veto' }
                 ]
             };
         } else {
+            const ev = eventTypes[Math.floor(Math.random() * eventTypes.length)];
             return {
                 type: "event",
-                t: "A sudden viral video shows a high-ranking official taking a bribe in a Pasay casino. The internet is demanding their head.",
+                t: `${s.icon} URGENT: ${act} ${ev.desc} the ${s.name} sector. This has triggered a national discussion on your leadership.`,
                 o: [
-                    { n: "Fire the official", a: 15, g: 0 },
-                    { n: "Defend them", a: -20, g: 0 },
-                    { n: "Ignore the video", a: -10, g: -1 },
-                    { n: "Ban the video platform", a: -30, g: -5 },
-                    { n: "Call for a Senate Probe", a: 5, g: -0.5 },
-                    { n: "Resign in shame (Lose Game)", a: -100, g: -100 }
+                    { n: "Take Aggressive Action", a: 15, g: -4 },
+                    { n: "Bribe the Critics", a: -5, g: -2 },
+                    { n: "Ignore and Move On", a: -10, g: 0 },
+                    { n: "Blame the Opposition", a: 5, g: 0 },
+                    { n: "Call for a Senate Probe", a: 8, g: -1 },
+                    { n: "Resign immediately", a: -100, g: -100 }
                 ]
             };
         }
     }
+
+    // Chart initialization remains the same...
+    const ctx = document.getElementById('lineChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: logs.labels,
+            datasets: [
+                { label: 'Trust', data: logs.a, borderColor: '#0a84ff', tension: 0.4, pointRadius: 0, borderWidth: 3 },
+                { label: 'GDP', data: logs.g, borderColor: '#ff453a', tension: 0.4, pointRadius: 0, borderWidth: 3 }
+            ]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } }, 
+            scales: { x: { display: false }, y: { display: false } } 
+        }
+    });
 
     function end(msg) {
         document.getElementById('death-screen').style.display = 'flex';
