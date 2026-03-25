@@ -168,155 +168,241 @@
 </div>
 
 <script>
-
-// ==============================
-// GAME STATE
-// ==============================
 let turn = 1;
 let stats = { a: 60, g: 5.0 };
 let logs = { labels: ['Y1'], a: [60], g: [5.0] };
 
-// ==============================
-// SCENARIO PACKS (Modular)
-// ==============================
-
-// --- Original 3 scenarios still included ---
-const baseScenarios = [/* your existing 3 here untouched */];
-
-// --- 50 Laws (Bills Pack) ---
-const lawPack = [
-    {
-        type: "bill",
-        t: "HOUSE BILL 1101: National Internet Modernization Act – ₱200B for 5G towers.",
-        o: lawOptions()
-    },
-    {
-        type: "bill",
-        t: "SENATE BILL 900: Agricultural Reform Act – removing middlemen in rice trading.",
-        o: lawOptions()
-    },
-    {
-        type: "bill",
-        t: "HOUSE BILL 550: MegaRail Project – north-south PH bullet train system.",
-        o: lawOptions()
-    },
+// =============================
+// 50+ LAWS (simple effects)
+// =============================
+const lawPool = [
+    { title: "DIVORCE ACT OF THE PHILIPPINES", a: 15, g: -1 },
+    { title: "SAME-SEX MARRIAGE EQUALITY ACT", a: 20, g: 2 },
+    { title: "ABORTION DECRIMINALIZATION ACT", a: -10, g: 1 },
+    { title: "OIL PRICE REGULATION ACT", a: 10, g: -2 },
+    { title: "NATIONAL INTERNET SPEED MANDATE", a: 12, g: 3 },
+    { title: "EDSA DECONGESTION MEGA PROJECT FUNDING", a: 5, g: -3 },
+    { title: "RENEWABLE ENERGY TRANSITION BILL", a: 8, g: -1 },
+    { title: "MANDATORY MILITARY SERVICE ACT", a: -5, g: 1 },
+    { title: "NATIONAL AI DEVELOPMENT ACT", a: 10, g: 3 },
+    { title: "ANTI-CORRUPTION TRANSPARENCY LAW", a: 18, g: 0 },
+    { title: "SUGAR IMPORT LIBERALIZATION LAW", a: -5, g: 2 },
+    { title: "PRICE CONTROL ON RICE EMERGENCY ACT", a: 12, g: -3 },
+    { title: "HEALTHCARE MODERNIZATION ACT", a: 15, g: -4 },
+    { title: "TEACHER SALARY INCREASE ACT", a: 20, g: -2 },
+    { title: "PAG-ASA MODERNIZATION ACT", a: 5, g: -1 },
+    { title: "SUBWAY EXPANSION FUNDING", a: 10, g: -3 },
+    { title: "E-VEHICLE NATIONAL INCENTIVE PROGRAM", a: 8, g: 2 },
+    { title: "CYBERCRIME CRACKDOWN ACT", a: -8, g: 1 },
+    { title: "NUCLEAR POWER REACTIVATION BILL", a: -5, g: 6 },
+    { title: "WEALTH TAX ON BILLIONAIRES ACT", a: 18, g: -4 },
+    { title: "TOBACCO TAX INCREASE", a: 5, g: 1 },
+    { title: "ALCOHOL LUXURY TAX ACT", a: 3, g: 2 },
+    { title: "FOREIGN OWNERSHIP EXPANSION ACT", a: -4, g: 5 },
+    { title: "FREE MEDICINE FOR SENIORS", a: 20, g: -5 },
+    { title: "PANDEMIC PREPAREDNESS FUNDING", a: 14, g: -3 },
+    { title: "NATIONAL FLOOD MITIGATION PLAN", a: 12, g: -4 },
+    { title: "PUBLIC SCHOOL TABLET PROGRAM", a: 10, g: -2 },
+    { title: "FREE COLLEGE TUITION EXPANSION", a: 22, g: -6 },
+    { title: "MINIMUM WAGE INCREASE ACT", a: 18, g: -3 },
+    { title: "REPRODUCTIVE HEALTH AMENDMENT", a: 10, g: -1 }
 ];
 
-// Auto-generate 50 bills without writing them manually
-while (lawPack.length < 50) {
-    lawPack.push({
-        type: "bill",
-        t: `BILL PROPOSAL #${lawPack.length+1}: Randomized national reform issue generated procedurally.`,
-        o: lawOptions()
-    });
-}
+// =============================
+// 20 REALISTIC PH + GLOBAL EVENTS
+// All 6-option
+// =============================
+const scenarioPool = [
+    {
+        type: "event",
+        t: "Global oil crisis erupts as tensions increase in the Middle East. Fuel prices in PH spike by 40% overnight. Transportation groups threaten a nationwide strike.",
+        o: [
+            { n: "Subsidize fuel for 3 months", a: 10, g: -4 },
+            { n: "Suspend excise tax", a: 20, g: -8 },
+            { n: "Import cheaper oil from Russia", a: -10, g: 5 },
+            { n: "Let prices stabilize naturally", a: -15, g: 2 },
+            { n: "Crack down on striking groups", a: -25, g: 3 },
+            { n: "National address calming the crisis", a: 8, g: -1 }
+        ]
+    },
+    {
+        type: "event",
+        t: "A bill legalizing divorce gains momentum. Religious groups protest nationwide while progressive groups call it long overdue.",
+        o: [
+            { n: "Support divorce publicly", a: 20, g: -1 },
+            { n: "Stay neutral", a: -5, g: 0 },
+            { n: "Condemn the bill", a: -15, g: 1 },
+            { n: "Put it to a national referendum", a: 10, g: -2 },
+            { n: "Delay the bill for 2 years", a: -10, g: 1 },
+            { n: "Meet with church leaders", a: 5, g: 0 }
+        ]
+    },
+    {
+        type: "event",
+        t: "A same-sex marriage ruling abroad sparks protests and celebrations in the Philippines. Activists demand PH legalization.",
+        o: [
+            { n: "Push for legalization", a: 25, g: 3 },
+            { n: "Offer civil unions only", a: 10, g: 1 },
+            { n: "Reject the idea", a: -20, g: 1 },
+            { n: "Open nationwide consultations", a: 12, g: -1 },
+            { n: "Let Congress handle it", a: -5, g: 0 },
+            { n: "Invite LGBTQ+ leaders to Malacañang", a: 15, g: 0 }
+        ]
+    },
+    {
+        type: "event",
+        t: "Abortion laws worldwide are being reviewed. Medical groups urge PH to allow abortion for rape victims and medical emergencies.",
+        o: [
+            { n: "Support limited abortion", a: 10, g: 1 },
+            { n: "Full decriminalization", a: -15, g: 2 },
+            { n: "Reject all changes", a: -5, g: 0 },
+            { n: "Allow hospitals case-by-case approval", a: 8, g: 0 },
+            { n: "Hold debates nationwide", a: 5, g: -1 },
+            { n: "Let judiciary decide", a: -2, g: 0 }
+        ]
+    },
 
-// --- 100 Events (Scenario Pack) ---
-const eventPack = [
     {
         type: "event",
-        t: "Mass power outage in Luzon. Energy grid accused of negligence.",
-        o: eventOptions()
+        t: "West Philippine Sea tensions rise as a foreign vessel blocks PH fisherfolk. Social media erupts with anger.",
+        o: [
+            { n: "Send navy escort", a: 15, g: -3 },
+            { n: "File diplomatic protest", a: 10, g: -1 },
+            { n: "Ignore (avoid conflict)", a: -20, g: 2 },
+            { n: "Invite US for joint patrol", a: 5, g: 3 },
+            { n: "Give fishermen cash aid", a: 10, g: -2 },
+            { n: "Public speech defying foreign aggression", a: 20, g: -3 }
+        ]
     },
+
     {
         type: "event",
-        t: "A viral AI-generated deepfake causes nationwide panic.",
-        o: eventOptions()
+        t: "A massive ransomware attack hits Philippine hospitals, delaying patient records nationwide.",
+        o: [
+            { n: "Pay the hackers", a: -10, g: -2 },
+            { n: "Deploy emergency cybersecurity team", a: 10, g: -3 },
+            { n: "Ask Japan for cyber assistance", a: 5, g: 2 },
+            { n: "Downplay the incident", a: -20, g: 1 },
+            { n: "Allocate billions for cyber defense", a: 5, g: -4 },
+            { n: "Suspend hospital operations", a: -15, g: -1 }
+        ]
     },
+
     {
         type: "event",
-        t: "Intelligence reports confirm foreign patrol ships entering PH waters.",
-        o: eventOptions()
+        t: "A viral video shows a senator assaulting an airport staff member. The public demands accountability.",
+        o: [
+            { n: "Suspend the senator", a: 20, g: 0 },
+            { n: "Defend them", a: -25, g: 0 },
+            { n: "Order an independent probe", a: 10, g: 0 },
+            { n: "Call for resignation", a: 15, g: 1 },
+            { n: "Ignore the issue", a: -10, g: 0 },
+            { n: "Blame airport mismanagement", a: -5, g: 1 }
+        ]
     },
+
+    {
+        type: "event",
+        t: "Massive flooding hits NCR due to La Niña. Citizens question government readiness.",
+        o: [
+            { n: "Deploy all rescue forces", a: 10, g: -2 },
+            { n: "Blame illegal settlers", a: -10, g: 0 },
+            { n: "Declare state of calamity", a: 8, g: -3 },
+            { n: "Fund large-scale drainage upgrade", a: 5, g: -5 },
+            { n: "Call private companies for help", a: 10, g: 1 },
+            { n: "Do nothing", a: -20, g: 0 }
+        ]
+    },
+
+    {
+        type: "event",
+        t: "A new pandemic variant causes rising cases. WHO issues global alert.",
+        o: [
+            { n: "Reinstate masks", a: 5, g: -1 },
+            { n: "Lockdown NCR", a: -15, g: -6 },
+            { n: "Boost vaccine rollout", a: 10, g: -3 },
+            { n: "Ignore WHO warning", a: -10, g: 1 },
+            { n: "Close borders temporarily", a: 5, g: -4 },
+            { n: "National address to calm the public", a: 8, g: 0 }
+        ]
+    },
+
+    {
+        type: "event",
+        t: "OFW remittances drop after a recession in Europe. PH economy slows.",
+        o: [
+            { n: "Send aid to OFWs", a: 10, g: -3 },
+            { n: "Open local job programs", a: 8, g: -2 },
+            { n: "Invite foreign investors", a: -5, g: 4 },
+            { n: "Ignore and hope recovery", a: -10, g: 1 },
+            { n: "Lower taxes to simulate economy", a: 5, g: -4 },
+            { n: "Raise taxes to compensate", a: -8, g: 2 }
+        ]
+    }
 ];
 
-// Auto-generate 100 events
-while (eventPack.length < 100) {
-    eventPack.push({
-        type: "event",
-        t: `CRISIS EVENT #${eventPack.length+1}: Automatically generated national or geopolitical incident.`,
-        o: eventOptions()
-    });
+// Randomly mix bill + event each turn
+function generateRandomScene() {
+    if (Math.random() > 0.5) {
+        // random law
+        const law = lawPool[Math.floor(Math.random() * lawPool.size)];
+        return {
+            type: "bill",
+            t: law.title,
+            o: [
+                { n: "SIGN BILL INTO LAW", a: law.a, g: law.g, class: "sign" },
+                { n: "VETO BILL", a: -law.a, g: -law.g, class: "veto" },
+                { n: "Return to Congress for review", a: 5, g: -1 },
+                { n: "Ask for Supreme Court evaluation", a: 8, g: -2 },
+                { n: "Delay decision by 6 months", a: -5, g: 0 },
+                { n: "Hold public consultation", a: 10, g: -1 }
+            ]
+        };
+    }
+
+    // random scenario
+    return scenarioPool[Math.floor(Math.random() * scenarioPool.length)];
 }
 
 
-// ==============================
-// OPTION GENERATORS
-// ==============================
-function lawOptions() {
-    return [
-        { n: "Sign into Law", a: rand(5,15), g: rand(-5,3), class: "sign" },
-        { n: "Veto Bill", a: rand(-15,-5), g: rand(1,5), class: "veto" },
-        { n: "Delay for Study", a: rand(-3,3), g: rand(-2,2) },
-        { n: "Amend and Approve", a: rand(3,10), g: rand(-3,2) },
-        { n: "Send Back to Congress", a: rand(-5,5), g: rand(-1,1) },
-        { n: "Secretly Trade Favors", a: rand(-10,2), g: rand(-2,4) }
-    ];
-}
+// =============================
+// GAME ENGINE
+// =============================
 
-function eventOptions() {
-    return [
-        { n: "Direct Intervention", a: rand(-10,15), g: rand(-3,3) },
-        { n: "Press Conference", a: rand(-5,8), g: rand(-2,2) },
-        { n: "Blame Previous Admin", a: rand(-3,6), g: rand(-1,1) },
-        { n: "Launch Investigation", a: rand(0,10), g: rand(-2,2) },
-        { n: "Ignore Issue", a: rand(-12,2), g: rand(-3,1) },
-        { n: "Emergency Powers", a: rand(-20,20), g: rand(-5,5) }
-    ];
-}
-
-function rand(min, max) {
-    return parseFloat((Math.random() * (max - min) + min).toFixed(1));
-}
-
-
-// ==============================
-// UNIVERSAL SCENE PICKER
-// ==============================
-function getScene() {
-    if (turn <= baseScenarios.length) return baseScenarios[turn - 1];
-
-    // After base scenarios, randomly pick from 150 total
-    const all = [...lawPack, ...eventPack];
-    return all[Math.floor(Math.random() * all.length)];
-}
-
-
-// ==============================
-// CHART SETUP
-// ==============================
 const ctx = document.getElementById('lineChart').getContext('2d');
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: logs.labels,
         datasets: [
-            { label:"Trust", data:logs.a, borderColor:"#0a84ff", tension:0.4, pointRadius:0, borderWidth:3 },
-            { label:"GDP", data:logs.g, borderColor:"#ff453a", tension:0.4, pointRadius:0, borderWidth:3 }
+            { label: 'Trust', data: logs.a, borderColor: '#0a84ff', tension: 0.4, pointRadius: 0, borderWidth: 3 },
+            { label: 'GDP', data: logs.g, borderColor: '#ff453a', tension: 0.4, pointRadius: 0, borderWidth: 3 }
         ]
     },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}}}
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
 });
 
-
-// ==============================
-// GAME ENGINE
-// ==============================
 function engine() {
-    // Fail states
-    if (stats.g <= -5) end("The economy collapsed. Your term ends abruptly.");
-    if (stats.a <= -10) end("Public trust is gone. You are removed from office.");
+    if (stats.g <= -5.0) end("Economic Collapse. Hyperinflation wipes out PH economy.");
+    if (stats.a <= -10.0) end("Approval collapsed. You were removed from office.");
 
     document.getElementById('header-title').innerText = `Year ${turn}`;
     document.getElementById('stat-a').innerText = stats.a + "%";
     document.getElementById('stat-g').innerText = stats.g.toFixed(1) + "%";
 
     const dot = document.getElementById('status-indicator');
-    if (stats.a < 5 || stats.g < 0) { dot.style.background="var(--ios-red)"; dot.style.boxShadow="0 0 10px var(--ios-red)"; }
-    else if (stats.a < 25 || stats.g < 2) { dot.style.background="var(--ios-yellow)"; dot.style.boxShadow="0 0 10px var(--ios-yellow)"; }
-    else { dot.style.background="var(--ios-green)"; dot.style.boxShadow="0 0 10px var(--ios-green)"; }
+    if (stats.a < 5 || stats.g < 0) {
+        dot.style.background = 'var(--ios-red)';
+        dot.style.boxShadow = '0 0 10px var(--ios-red)';
+    } else if (stats.a < 25 || stats.g < 2) {
+        dot.style.background = 'var(--ios-yellow)';
+        dot.style.boxShadow = '0 0 10px var(--ios-yellow)';
+    } else {
+        dot.style.background = 'var(--ios-green)';
+        dot.style.boxShadow = '0 0 10px var(--ios-green)';
+    }
 
-    const scene = getScene();
+    const scene = generateRandomScene();
 
     const badge = document.getElementById('badge');
     badge.innerText = scene.type;
@@ -324,23 +410,21 @@ function engine() {
 
     document.getElementById('story-text').innerText = scene.t;
     const btnBox = document.getElementById('btn-stack');
-    btnBox.innerHTML = "";
+    btnBox.innerHTML = '';
 
     scene.o.forEach(opt => {
-        const b = document.createElement("button");
-        b.className = `opt-btn ${opt.class || ""}`;
-        b.innerHTML = `<span>${opt.n}</span><span style="font-size:20px">›</span>`;
+        const b = document.createElement('button');
+        b.className = `opt-btn ${opt.class || ''}`;
+        b.innerHTML = `<span>${opt.n}</span> <span style="font-size:20px">›</span>`;
         b.onclick = () => {
             stats.a += opt.a;
             stats.g += opt.g;
-
             turn++;
-            logs.labels.push("Y" + turn);
+            logs.labels.push('Y'+turn);
             logs.a.push(stats.a);
             logs.g.push(stats.g);
-
             chart.update();
-            window.scrollTo({ top:0, behavior:"smooth" });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             engine();
         };
         btnBox.appendChild(b);
@@ -348,12 +432,11 @@ function engine() {
 }
 
 function end(msg) {
-    document.getElementById("death-screen").style.display = "flex";
-    document.getElementById("death-msg").innerHTML = msg;
+    document.getElementById('death-screen').style.display = 'flex';
+    document.getElementById('death-msg').innerHTML = msg;
 }
 
 engine();
-
 </script>
 </body>
 </html>
